@@ -42,7 +42,7 @@ namespace M3UPlaylistCreator
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("Beim erstellen der Playlist Datei ist ein Fehler aufgetretten.\n" + e);
-                Console.ForegroundColor = ConsoleColor.White;
+                Console.ResetColor();
                 return;
             }
 

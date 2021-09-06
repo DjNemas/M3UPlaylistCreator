@@ -8,6 +8,8 @@ namespace M3UPlaylistCreator
 {
     class Program
     {
+        private static bool samsung = false;
+
         static void Main(string[] args)
         {
             Console.WriteLine("Bitte <Ordner> angeben.");
@@ -72,12 +74,16 @@ namespace M3UPlaylistCreator
             Console.WriteLine("Playlist wird gebaut. Bitte warten!");
 
             // Create Header
-            File.AppendAllText(m3uData, "#EXTM3U\n");
+            if (!samsung)
+                File.AppendAllText(m3uData, "#EXTM3U\n");
             // Create M3U Infortmation per Music File
             int countRounds = 1;
             foreach (var item in List2D)
             {
-                File.AppendAllText(m3uData, "#EXTINF:" + ((TagLib.File)item[0]).Properties.Duration.TotalSeconds.ToString().Split(',')[0] + "," + ((TagLib.File)item[0]).Tag.Title + "\n" + ((string)item[1]) + "\n");
+                if (samsung)
+                    File.AppendAllText(m3uData, "/storage/emulated/0/Music/Vocaloid Best Songs for me! Car/" + ((string)item[1]) + "\n");
+                else
+                    File.AppendAllText(m3uData, "#EXTINF:" + ((TagLib.File)item[0]).Properties.Duration.TotalSeconds.ToString().Split(',')[0] + "," + ((TagLib.File)item[0]).Tag.Title + "\n" + ((string)item[1]) + "\n");
                 int percent = (int)((float)100 / (float)List2D.Count * (float)countRounds);
                 countRounds++;
                 Console.WriteLine(percent + "% fertig gestellt!");

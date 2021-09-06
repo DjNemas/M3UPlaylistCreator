@@ -46,66 +46,44 @@ namespace M3UPlaylistCreator
                 return;
             }
 
-            string[] mp3Files = null;
+            FileInfo[] mp3Files = null;
             try
             {
-                mp3Files = Directory.GetFiles(args[0], "*mp3");
+                DirectoryInfo di = new DirectoryInfo(args[0]);
+                mp3Files = di.GetFiles("*.mp3");
             }
             catch (Exception e)
             {
                 Console.WriteLine("Ordner konnte nicht gelesen werden.\n" + e);
             }
 
-            List<TagLib.File> tlList = new List<TagLib.File>();
+            List<List<object>> List2D = new List<List<object>>();
             // Get all file informations and store them
             foreach (var item in mp3Files)
             {
-                tlList.Add(TagLib.File.Create(item));
+                List<object> objectList = new List<object>();
+
+                objectList.Add(TagLib.File.Create(item.FullName));
+                objectList.Add(item.Name);
+
+                List2D.Add(objectList);
             }
 
             Console.WriteLine("Playlist wird gebaut. Bitte warten!");
-            int countRounds = 1;
+
             // Create Header
             File.AppendAllText(m3uData, "#EXTM3U\n");
-
             // Create M3U Infortmation per Music File
-            foreach (var item in tlList)
+            int countRounds = 1;
+            foreach (var item in List2D)
             {
-
-                string fileName = removeUntilChar(item.Name, '\\');
-                File.AppendAllText(m3uData, "#EXTINF:" + item.Properties.Duration.TotalSeconds.ToString().Split(',')[0] + "," + item.Tag.Title + "\n" + fileName + "\n");
-                int percent = (int)((float)100 / (float)tlList.Count * (float)countRounds);
+                File.AppendAllText(m3uData, "#EXTINF:" + ((TagLib.File)item[0]).Properties.Duration.TotalSeconds.ToString().Split(',')[0] + "," + ((TagLib.File)item[0]).Tag.Title + "\n" + ((string)item[1]) + "\n");
+                int percent = (int)((float)100 / (float)List2D.Count * (float)countRounds);
                 countRounds++;
                 Console.WriteLine(percent + "% fertig gestellt!");
             }
             Console.WriteLine("Playlist erstellt!");
             Thread.Sleep(5000);
-        }
-
-        public static string removeUntilChar(string str, char character)
-        {
-            string reverseString = "";
-            for (int i = str.Length - 1; i > -1; i--)
-            {
-                reverseString += str[i];
-            }
-
-            string shortString = "";
-            for (int i = 0; i < reverseString.Length; i++)
-            {
-                if (reverseString[i].Equals(character))
-                {
-                    break;
-                }
-                shortString += reverseString[i];
-            }
-
-            string newString = "";
-            for(int i = shortString.Length - 1 ; i > -1; i--)
-            {
-                newString += shortString[i];
-            }
-            return newString;
         }
     }
 }
